@@ -30,6 +30,7 @@ public class NewNetcoreService {
     private static NewNetcoreService newNetcoreService = null;
 
     public NewNetcoreService(NWCredentials credentials) {
+	System.out.println("########## NewNetcoreService Adapter NewNetcoreService credentials.getToken() "+credentials.getToken());
         this.client = new OkHttpClient().newBuilder().build();
         this.mediaType = MediaType.parse("application/json");
         String url = System.getenv("NETCORE_WHATSAPP_URI");
@@ -54,6 +55,7 @@ public class NewNetcoreService {
     public ManageUserResponse manageUser(ManageUserRequestMessage message) {
         ObjectMapper mapper = new ObjectMapper();
         RequestBody body = null;
+	System.out.println("########## NewNetcoreService Adapter manageUser credentials.getToken() "+credentials.getToken());
         try {
             body = RequestBody.create(mediaType, mapper.writeValueAsString(message));
             Request request = new Request.Builder()
@@ -79,6 +81,7 @@ public class NewNetcoreService {
     public SendMessageResponse sendText(OutboundMessage message) {
         ObjectMapper mapper = new ObjectMapper();
         RequestBody body = null;
+	System.out.println("########## NewNetcoreService Adapter sendText credentials.getToken() "+credentials.getToken());
         try {
             body = RequestBody.create(mediaType, mapper.writeValueAsString(message));
             Request request = new Request.Builder()
@@ -181,6 +184,7 @@ public class NewNetcoreService {
      */
     public InputStream getMediaFile(String id) {
     	ObjectMapper mapper = new ObjectMapper();
+	System.out.println("########## NewNetcoreService Adapter getMediaFile credentials.getToken() "+credentials.getToken());
         try {
             Request request = new Request.Builder()
                     .url(baseURL + "media/"+id)
