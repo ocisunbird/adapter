@@ -28,6 +28,7 @@ public class NetcoreService {
     public ManageUserResponse manageUser(ManageUserRequestMessage message){
         ObjectMapper mapper = new ObjectMapper();
         RequestBody body = null;
+        System.out.println("########## NetcoreService Adapter ManageUserResponse credentials.getToken() "+credentials.getToken());
         try {
             body = RequestBody.create(mediaType,  mapper.writeValueAsString(message));
             Request request = new Request.Builder()
@@ -53,6 +54,7 @@ public class NetcoreService {
     public SendMessageResponse sendText(OutboundMessage message){
         ObjectMapper mapper = new ObjectMapper();
         RequestBody body = null;
+        System.out.println("########## NetcoreService Adapter SendMessageResponse credentials.getToken() "+credentials.getToken());
         try {
             body = RequestBody.create(mediaType,  mapper.writeValueAsString(message));
             Request request = new Request.Builder()
