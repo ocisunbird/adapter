@@ -40,7 +40,7 @@ public class NewNetcoreService {
         webClient = WebClient.builder()
                 .baseUrl(url)
                 .defaultHeader("Content-Type", "application/json")
-                .defaultHeader("Authorization", "Bearer " + credentials.getToken())
+                .defaultHeader("Authorization", credentials.getToken())
                 .build();
     }
 
@@ -62,7 +62,7 @@ public class NewNetcoreService {
                     .url(baseURL + "consent/manage")
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("Authorization", "Bearer " + credentials.getToken())
+                    .addHeader("Authorization", credentials.getToken())
                     .build();
             Response response = client.newCall(request).execute();
             String json = response.body().toString();
@@ -88,7 +88,7 @@ public class NewNetcoreService {
                     .url(baseURL + "message/")
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("Authorization", "Bearer " + credentials.getToken())
+                    .addHeader("Authorization", credentials.getToken())
                     .build();
             Response response = client.newCall(request).execute();
             String json = response.body().string();
