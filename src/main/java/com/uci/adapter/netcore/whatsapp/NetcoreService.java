@@ -35,7 +35,7 @@ public class NetcoreService {
                     .url(baseURL + "consent/manage")
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("Authorization", "Bearer " + credentials.getToken())
+                    .addHeader("Authorization", credentials.getToken())
                     .build();
             Response response = client.newCall(request).execute();
             String json = response.body().toString();
@@ -61,7 +61,7 @@ public class NetcoreService {
                     .url(baseURL + "message/")
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("Authorization", "Bearer " + credentials.getToken())
+                    .addHeader("Authorization", credentials.getToken())
                     .build();
             Response response = client.newCall(request).execute();
             String json = response.body().string();
