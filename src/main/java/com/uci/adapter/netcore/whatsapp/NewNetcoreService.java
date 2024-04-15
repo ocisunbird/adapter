@@ -1,23 +1,39 @@
 package com.uci.adapter.netcore.whatsapp;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import org.springframework.web.reactive.function.client.WebClient;
+
 import com.azure.core.util.BinaryData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
 import com.uci.adapter.netcore.whatsapp.outbound.ManageUserRequestMessage;
 import com.uci.adapter.netcore.whatsapp.outbound.ManageUserResponse;
 import com.uci.adapter.netcore.whatsapp.outbound.OutboundMessage;
 import com.uci.adapter.netcore.whatsapp.outbound.OutboundOptInOutMessage;
 import com.uci.adapter.netcore.whatsapp.outbound.SendMessageResponse;
-import okhttp3.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import com.uci.adapter.netcore.whatsapp.outbound.SingleMessage;
+import com.uci.adapter.netcore.whatsapp.outbound.nic.Address;
+import com.uci.adapter.netcore.whatsapp.outbound.nic.NewOutboundMessage;
+import com.uci.adapter.netcore.whatsapp.outbound.nic.NewSendMessageResponse;
+import com.uci.adapter.netcore.whatsapp.outbound.nic.Sms;
+import com.uci.adapter.netcore.whatsapp.outbound.nic.User;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import reactor.core.publisher.Mono;
 
 public class NewNetcoreService {
 
@@ -104,20 +120,31 @@ public class NewNetcoreService {
         }
     }
 
-    public Mono<SendMessageResponse> sendOutboundMessage(OutboundMessage outboundMessage) {
+    public Mono<NewSendMessageResponse> sendOutboundMessage(OutboundMessage outboundMessage) {
     	ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    	
+    	NewOutboundMessage newOutboundMessage = new NewOutboundMessage();
+    	
     	try {
-			String json = ow.writeValueAsString(outboundMessage);
-			System.out.println("json:"+json);
-		} catch (JsonProcessingException e) {
+    		// Openforge#146367 whatsApp vendor chnage
+    		// convert existing netcore outbound message to new NIC outbound
+    		newOutboundMessage = convertOutboundRequestToNewVendorRequest(outboundMessage, newOutboundMessage);
+    		
+    		Gson gson = new Gson();
+    		String json = gson.toJson(newOutboundMessage);
+			String jsonNetCore = ow.writeValueAsString(outboundMessage);
+			
+			System.out.println("jsonNetCore : "+jsonNetCore);
+			System.out.println("json : "+json);
+		} catch (Exception e) {
 			System.out.println("json not converted:"+e.getMessage());
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	
-        return webClient.post()
+        /*return webClient.post()
                 .uri("/message/")
-                .body(Mono.just(outboundMessage), OutboundMessage.class)
+                .body(Mono.just(newOutboundMessage), NewOutboundMessage.class)
                 .retrieve()
                 .bodyToMono(SendMessageResponse.class)
                 .map(new Function<SendMessageResponse, SendMessageResponse>() {
@@ -137,8 +164,68 @@ public class NewNetcoreService {
                     public void accept(Throwable throwable) {
                         System.out.println("ERROR IS " + throwable.getLocalizedMessage());
                     }
+                });*/
+    	return webClient.post()
+                .uri("/message/")
+                .body(Mono.just(newOutboundMessage), NewOutboundMessage.class)
+                .retrieve()
+                .bodyToMono(NewSendMessageResponse.class)
+                .map(new Function<NewSendMessageResponse, NewSendMessageResponse>() {
+                    @Override
+                    public NewSendMessageResponse apply(NewSendMessageResponse sendMessageResponse) {
+                        if (sendMessageResponse != null) {
+                        	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getGuid());
+                        	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getId());
+                            //System.out.println("MESSAGE RESPONSE " + sendMessageResponse.getMessage());
+                            //System.out.println("STATUS RESPONSE " + sendMessageResponse.getStatus());
+                            //System.out.println("DATA RESPONSE " + sendMessageResponse.getData());
+                            return sendMessageResponse;
+                        } else {
+                            return null;
+                        }
+                    }
+                }).doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) {
+                        System.out.println("ERROR IS " + throwable.getLocalizedMessage());
+                    }
                 });
     }
+
+	private NewOutboundMessage convertOutboundRequestToNewVendorRequest(OutboundMessage outboundMessage,
+			NewOutboundMessage newOutboundMessage) {
+		List<Sms> smsList = new ArrayList<>();
+		
+		for(SingleMessage singleMessage : outboundMessage.getMessage()) {
+			Sms sms = new Sms();
+		    sms.setAddress(new ArrayList<>());
+      
+		    Address address = new Address();
+		    address.setFrom("919310200148"); // Need to check with New Vendor (TODO number from property file)
+		    address.setTo(singleMessage.getTo());
+		    address.setSeq("");
+		    address.setTag("");
+		    sms.getAddress().add(address);
+      
+		    sms.setMessageType(singleMessage.getMessageType());
+		    sms.setText(singleMessage.getText()[0].getContent());
+      
+		    sms.setUdh("0");
+		    sms.setCoding("");
+		    sms.setTemplateInfo("");
+		    sms.setId("");
+		    sms.setMessageType("1");
+		    sms.setProperty("0");
+		    smsList.add(sms);
+		}
+		newOutboundMessage.setSms(smsList);
+		newOutboundMessage.setVersion("1.2");
+		User user = new User();
+		user.setChannelType("4");
+		user.setTimestamp("");
+		newOutboundMessage.setUser(user);
+		return newOutboundMessage;
+	}
     
     public Mono<SendMessageResponse> sendOutboundOptInOutMessage(OutboundOptInOutMessage outboundMessage) {
     	ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();

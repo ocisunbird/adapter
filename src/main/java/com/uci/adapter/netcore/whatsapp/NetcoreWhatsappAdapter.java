@@ -18,6 +18,7 @@ import com.uci.adapter.netcore.whatsapp.outbound.interactive.quickreply.ReplyBut
 import com.uci.adapter.netcore.whatsapp.outbound.media.Attachment;
 import com.uci.adapter.netcore.whatsapp.outbound.media.AttachmentType;
 import com.uci.adapter.netcore.whatsapp.outbound.media.MediaContent;
+import com.uci.adapter.netcore.whatsapp.outbound.nic.NewSendMessageResponse;
 import com.uci.adapter.netcore.whatsapp.outbound.OutboundOptInOutMessage;
 import com.uci.adapter.provider.factory.AbstractProvider;
 import com.uci.adapter.provider.factory.IProvider;
@@ -409,15 +410,19 @@ public class NetcoreWhatsappAdapter extends AbstractProvider implements IProvide
         SingleMessage message = getOutboundSingleMessage(xMsg, phoneNo);
         
         return NewNetcoreService.getInstance(new NWCredentials(System.getenv("NETCORE_WHATSAPP_AUTH_TOKEN"))).
-                sendOutboundMessage(OutboundMessage.builder().message(new SingleMessage[]{message}).build()).map(new Function<SendMessageResponse, XMessage>() {
+                sendOutboundMessage(OutboundMessage.builder().message(new SingleMessage[]{message}).build()).map(new Function<NewSendMessageResponse, XMessage>() {
             @Override
-            public XMessage apply(SendMessageResponse sendMessageResponse) {
+            public XMessage apply(NewSendMessageResponse sendMessageResponse) {
                 if(sendMessageResponse != null){
-                	if(sendMessageResponse.getStatus().equals("success")) {
-                		xMsg.setMessageId(MessageId.builder().channelMessageId(sendMessageResponse.getData().getIdentifier()).build());
+                	//if(sendMessageResponse.getStatus().equals("success")) {
+						if (sendMessageResponse.getMessageResponse().getGuid().getError() == null) {
+                		//xMsg.setMessageId(MessageId.builder().channelMessageId(sendMessageResponse.getData().getIdentifier()).build());
+                        //xMsg.setMessageState(XMessage.MessageState.SENT);
+                        xMsg.setMessageId(MessageId.builder().channelMessageId(sendMessageResponse.getMessageResponse().getGuid().getGuid()).build());
                         xMsg.setMessageState(XMessage.MessageState.SENT);
                 	} else {
-                		log.error("Netcore Outbound Api Error Response: "+sendMessageResponse.getError().getMessage());
+                		//log.error("Netcore Outbound Api Error Response: "+sendMessageResponse.getError().getMessage());
+                		log.error("NIC Outbound Api Error Response: "+sendMessageResponse.getMessageResponse().getGuid().getError().getCode());
                 		return null;
                 	}
                 }
