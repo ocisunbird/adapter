@@ -166,7 +166,6 @@ public class NewNetcoreService {
                     }
                 });*/
     	return webClient.post()
-                .uri("/message/")
                 .body(Mono.just(newOutboundMessage), NewOutboundMessage.class)
                 .retrieve()
                 .bodyToMono(NewSendMessageResponse.class)
@@ -176,6 +175,7 @@ public class NewNetcoreService {
                         if (sendMessageResponse != null) {
                         	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getGuid());
                         	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getId());
+                        	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getSubmitDate());
                             //System.out.println("MESSAGE RESPONSE " + sendMessageResponse.getMessage());
                             //System.out.println("STATUS RESPONSE " + sendMessageResponse.getStatus());
                             //System.out.println("DATA RESPONSE " + sendMessageResponse.getData());
