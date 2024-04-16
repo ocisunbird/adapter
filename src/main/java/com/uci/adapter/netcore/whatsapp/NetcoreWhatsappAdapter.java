@@ -406,8 +406,10 @@ public class NetcoreWhatsappAdapter extends AbstractProvider implements IProvide
      */
     @Override
     public Mono<XMessage> processOutBoundMessageF(XMessage xMsg) {
+    	
     	String phoneNo = "91" +xMsg.getTo().getUserID();
         SingleMessage message = getOutboundSingleMessage(xMsg, phoneNo);
+        log.info("processOutBoundMessageF phoneNo {} , message {}",phoneNo,message);
         
         return NewNetcoreService.getInstance(new NWCredentials(System.getenv("NETCORE_WHATSAPP_AUTH_TOKEN"))).
                 sendOutboundMessage(OutboundMessage.builder().message(new SingleMessage[]{message}).build()).map(new Function<NewSendMessageResponse, XMessage>() {

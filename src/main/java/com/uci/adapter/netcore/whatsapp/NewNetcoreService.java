@@ -56,7 +56,7 @@ public class NewNetcoreService {
         webClient = WebClient.builder()
                 .baseUrl(url)
                 .defaultHeader("Content-Type", "application/json")
-                .defaultHeader("Authorization", credentials.getToken())
+                .defaultHeader("Authorization", "Bearer "+credentials.getToken())
                 .build();
     }
 
@@ -121,6 +121,7 @@ public class NewNetcoreService {
     }
 
     public Mono<NewSendMessageResponse> sendOutboundMessage(OutboundMessage outboundMessage) {
+    	System.out.println("sendOutboundMessage in Adapter");
     	ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     	
     	NewOutboundMessage newOutboundMessage = new NewOutboundMessage();
@@ -165,6 +166,7 @@ public class NewNetcoreService {
                         System.out.println("ERROR IS " + throwable.getLocalizedMessage());
                     }
                 });*/
+    	System.out.println("Sending POST request to Vendor API");
     	return webClient.post()
                 .body(Mono.just(newOutboundMessage), NewOutboundMessage.class)
                 .retrieve()
@@ -228,6 +230,7 @@ public class NewNetcoreService {
 	}
     
     public Mono<SendMessageResponse> sendOutboundOptInOutMessage(OutboundOptInOutMessage outboundMessage) {
+    	System.out.println("sendOutboundOptInOutMessage");
     	ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     	try {
 			String json = ow.writeValueAsString(outboundMessage);
