@@ -56,7 +56,7 @@ public class NewNetcoreService {
         webClient = WebClient.builder()
                 .baseUrl(url)
                 .defaultHeader("Content-Type", "application/json")
-                .defaultHeader("Authorization", "Bearer "+credentials.getToken())
+                .defaultHeader("Authorization", credentials.getToken())
                 .build();
     }
 
