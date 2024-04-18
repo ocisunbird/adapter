@@ -2,22 +2,21 @@ package com.uci.adapter.netcore.whatsapp.outbound.nic;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Builder;
 import lombok.Data;
 
 @Data
 @XmlRootElement
 public class GUID {
 
-	@JsonAlias({ "SUBMITDATE" })
+	@JsonProperty("SUBMITDATE")
 	public String submitDate;
-	@JsonAlias({ "GUID" })
+	@JsonProperty("GUID")
 	public String guid;
-	@JsonAlias({ "ID" })
+	@JsonProperty("ID")
 	public String id;
-	@JsonAlias({ "ERROR" })
+	@JsonProperty("ERROR")
 	public ERROR error;
 
 	@Override

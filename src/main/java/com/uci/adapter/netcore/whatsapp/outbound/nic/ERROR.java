@@ -2,7 +2,7 @@ package com.uci.adapter.netcore.whatsapp.outbound.nic;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
@@ -10,9 +10,9 @@ import lombok.Data;
 @XmlRootElement
 public class ERROR {
 
-	@JsonAlias({ "CODE" })
+	@JsonProperty("CODE")
 	public int code;
-	@JsonAlias({ "SEQ" })
+	@JsonProperty("SEQ")
 	public int seq;
 
 	@Override

@@ -176,9 +176,9 @@ public class NewNetcoreService {
                     public NewSendMessageResponse apply(NewSendMessageResponse sendMessageResponse) {
                     	System.out.println("sendMessageResponse "+sendMessageResponse);
                         if (sendMessageResponse != null) {
-                        	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getGuid());
-                        	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getId());
-                        	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getSubmitDate());
+                        	System.out.println(sendMessageResponse.getMESSAGEACK().getGuid().getGuid());
+                        	System.out.println(sendMessageResponse.getMESSAGEACK().getGuid().getId());
+                        	System.out.println(sendMessageResponse.getMESSAGEACK().getGuid().getSubmitDate());
                             //System.out.println("MESSAGE RESPONSE " + sendMessageResponse.getMessage());
                             //System.out.println("STATUS RESPONSE " + sendMessageResponse.getStatus());
                             //System.out.println("DATA RESPONSE " + sendMessageResponse.getData());

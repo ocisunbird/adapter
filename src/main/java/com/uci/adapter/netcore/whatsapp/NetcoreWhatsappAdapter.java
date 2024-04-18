@@ -418,14 +418,15 @@ public class NetcoreWhatsappAdapter extends AbstractProvider implements IProvide
                 if(sendMessageResponse != null){
                 	System.out.println("sendMessageResponse "+sendMessageResponse);
                 	//if(sendMessageResponse.getStatus().equals("success")) {
-						if (sendMessageResponse.getMessageResponse().getGuid().getError() == null) {
+						if (sendMessageResponse.getMESSAGEACK().getGuid().getError() == null) {
+						System.out.println("sendMessageResponse.getMESSAGEACK().getGuid().getError() status : "+sendMessageResponse.getMESSAGEACK().getGuid().getError() == null);
                 		//xMsg.setMessageId(MessageId.builder().channelMessageId(sendMessageResponse.getData().getIdentifier()).build());
                         //xMsg.setMessageState(XMessage.MessageState.SENT);
-                        xMsg.setMessageId(MessageId.builder().channelMessageId(sendMessageResponse.getMessageResponse().getGuid().getGuid()).build());
+                        xMsg.setMessageId(MessageId.builder().channelMessageId(sendMessageResponse.getMESSAGEACK().getGuid().getGuid()).build());
                         xMsg.setMessageState(XMessage.MessageState.SENT);
                 	} else {
                 		//log.error("Netcore Outbound Api Error Response: "+sendMessageResponse.getError().getMessage());
-                		log.error("NIC Outbound Api Error Response: "+sendMessageResponse.getMessageResponse().getGuid().getError().getCode());
+                		log.error("NIC Outbound Api Error Response: "+sendMessageResponse.getMESSAGEACK().getGuid().getError().getCode());
                 		return null;
                 	}
                 }
