@@ -13,4 +13,10 @@ public class MessageResponse {
 	@JsonAlias({ "GUID" })
 	public GUID guid;
 
+	@Override
+	public String toString() {
+		return "MessageResponse [guid=" + guid + ", getGuid()=" + getGuid() + ", hashCode()=" + hashCode()
+				+ ", getClass()=" + getClass() + ", toString()=" + super.toString() + "]";
+	}
+
 }

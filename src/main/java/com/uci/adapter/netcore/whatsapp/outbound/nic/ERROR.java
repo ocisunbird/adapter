@@ -15,4 +15,11 @@ public class ERROR {
 	@JsonAlias({ "SEQ" })
 	public int seq;
 
+	@Override
+	public String toString() {
+		return "ERROR [code=" + code + ", seq=" + seq + ", getCode()=" + getCode() + ", getSeq()=" + getSeq()
+				+ ", hashCode()=" + hashCode() + ", getClass()=" + getClass() + ", toString()=" + super.toString()
+				+ "]";
+	}
+
 }

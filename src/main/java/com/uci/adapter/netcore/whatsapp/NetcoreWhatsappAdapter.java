@@ -416,6 +416,7 @@ public class NetcoreWhatsappAdapter extends AbstractProvider implements IProvide
             @Override
             public XMessage apply(NewSendMessageResponse sendMessageResponse) {
                 if(sendMessageResponse != null){
+                	System.out.println("sendMessageResponse "+sendMessageResponse);
                 	//if(sendMessageResponse.getStatus().equals("success")) {
 						if (sendMessageResponse.getMessageResponse().getGuid().getError() == null) {
                 		//xMsg.setMessageId(MessageId.builder().channelMessageId(sendMessageResponse.getData().getIdentifier()).build());

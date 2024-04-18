@@ -19,4 +19,13 @@ public class GUID {
 	public String id;
 	@JsonAlias({ "ERROR" })
 	public ERROR error;
+
+	@Override
+	public String toString() {
+		return "GUID [submitDate=" + submitDate + ", guid=" + guid + ", id=" + id + ", error=" + error
+				+ ", getSubmitDate()=" + getSubmitDate() + ", getGuid()=" + getGuid() + ", getId()=" + getId()
+				+ ", getError()=" + getError() + ", hashCode()=" + hashCode() + ", getClass()=" + getClass()
+				+ ", toString()=" + super.toString() + "]";
+	}
+
 }

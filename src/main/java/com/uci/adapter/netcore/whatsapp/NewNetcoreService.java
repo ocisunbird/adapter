@@ -136,7 +136,7 @@ public class NewNetcoreService {
 			String jsonNetCore = ow.writeValueAsString(outboundMessage);
 			
 			System.out.println("jsonNetCore : "+jsonNetCore);
-			System.out.println("json : "+json);
+			System.out.println("json file for NIC : "+json);
 		} catch (Exception e) {
 			System.out.println("json not converted:"+e.getMessage());
 			// TODO Auto-generated catch block
@@ -174,6 +174,7 @@ public class NewNetcoreService {
                 .map(new Function<NewSendMessageResponse, NewSendMessageResponse>() {
                     @Override
                     public NewSendMessageResponse apply(NewSendMessageResponse sendMessageResponse) {
+                    	System.out.println("sendMessageResponse "+sendMessageResponse);
                         if (sendMessageResponse != null) {
                         	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getGuid());
                         	System.out.println(sendMessageResponse.getMessageResponse().getGuid().getId());
