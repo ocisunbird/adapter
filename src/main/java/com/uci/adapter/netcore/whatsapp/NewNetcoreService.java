@@ -2,6 +2,7 @@ package com.uci.adapter.netcore.whatsapp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -169,6 +170,7 @@ public class NewNetcoreService {
     	System.out.println("Sending POST request to Vendor API");
     	return webClient.post()
                 .body(Mono.just(newOutboundMessage), NewOutboundMessage.class)
+                .acceptCharset(Charset.defaultCharset())
                 .retrieve()
                 .bodyToMono(NewSendMessageResponse.class)
                 .map(new Function<NewSendMessageResponse, NewSendMessageResponse>() {
