@@ -181,12 +181,12 @@ public class NewNetcoreService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(response -> {
-                	System.out.println("Response : "+response);
+                	System.out.println("Response from vendor API : "+response);
                 	ObjectMapper objectMapper = new ObjectMapper();
                     try {
                         return objectMapper.readValue(response, NewSendMessageResponse.class);
                     } catch (JsonProcessingException e) {
-                    	System.out.println("Failed to parse response: {}"+ e.getMessage());
+                    	System.out.println("Failed to parse response: {} "+ e.getMessage());
                         return null; // or handle the error as per your requirement
                     }
                 })
@@ -195,9 +195,6 @@ public class NewNetcoreService {
                     System.out.println("WebClient request failed with status code {}: {}"+ ex.getRawStatusCode()+" "+ex.getResponseBodyAsString());
                     return Mono.empty(); // or return a default value or perform a recovery action
                 });
-        System.out.println("######################### responseMono : " + responseMono);
-        NewSendMessageResponse response = responseMono.block();
-        System.out.println("Response after block"+response);
     	return responseMono;
     }
 
