@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.azure.core.util.BinaryData;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,6 +37,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class NewNetcoreService {
@@ -47,7 +51,7 @@ public class NewNetcoreService {
     private static NewNetcoreService newNetcoreService = null;
 
     public NewNetcoreService(NWCredentials credentials) {
-	System.out.println("########## NewNetcoreService Adapter NewNetcoreService credentials.getToken() "+credentials.getToken());
+	System.out.println("########## NewNetcoreService Adapter NewNetcoreService credentials.getToken() : "+credentials.getToken());
         this.client = new OkHttpClient().newBuilder().build();
         this.mediaType = MediaType.parse("application/json");
         String url = System.getenv("NETCORE_WHATSAPP_URI");
@@ -57,7 +61,7 @@ public class NewNetcoreService {
         webClient = WebClient.builder()
                 .baseUrl(url)
                 .defaultHeader("Content-Type", "application/json")
-                .defaultHeader("Authorization", credentials.getToken())
+                .defaultHeader("Authorization", "Bearer "+credentials.getToken())
                 .build();
     }
 
@@ -126,6 +130,7 @@ public class NewNetcoreService {
     	ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     	
     	NewOutboundMessage newOutboundMessage = new NewOutboundMessage();
+    	String json=null;
     	
     	try {
     		// Openforge#146367 whatsApp vendor chnage
@@ -133,7 +138,7 @@ public class NewNetcoreService {
     		newOutboundMessage = convertOutboundRequestToNewVendorRequest(outboundMessage, newOutboundMessage);
     		
     		Gson gson = new Gson();
-    		String json = gson.toJson(newOutboundMessage);
+    		json = gson.toJson(newOutboundMessage);
 			String jsonNetCore = ow.writeValueAsString(outboundMessage);
 			
 			System.out.println("jsonNetCore : "+jsonNetCore);
@@ -167,34 +172,33 @@ public class NewNetcoreService {
                         System.out.println("ERROR IS " + throwable.getLocalizedMessage());
                     }
                 });*/
-    	System.out.println("Sending POST request to Vendor API");
-    	return webClient.post()
-                .body(Mono.just(newOutboundMessage), NewOutboundMessage.class)
-                .acceptCharset(Charset.defaultCharset())
+    	System.out.println("Sending POST request to Vendor API Call");
+    	Mono<NewSendMessageResponse> responseMono = webClient.method(HttpMethod.POST)
+        		.acceptCharset(Charset.defaultCharset())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(json))
+                .accept(org.springframework.http.MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(NewSendMessageResponse.class)
-                .map(new Function<NewSendMessageResponse, NewSendMessageResponse>() {
-                    @Override
-                    public NewSendMessageResponse apply(NewSendMessageResponse sendMessageResponse) {
-                    	System.out.println("sendMessageResponse "+sendMessageResponse);
-                        if (sendMessageResponse != null) {
-                        	System.out.println(sendMessageResponse.getMESSAGEACK().getGuid().getGuid());
-                        	System.out.println(sendMessageResponse.getMESSAGEACK().getGuid().getId());
-                        	System.out.println(sendMessageResponse.getMESSAGEACK().getGuid().getSubmitDate());
-                            //System.out.println("MESSAGE RESPONSE " + sendMessageResponse.getMessage());
-                            //System.out.println("STATUS RESPONSE " + sendMessageResponse.getStatus());
-                            //System.out.println("DATA RESPONSE " + sendMessageResponse.getData());
-                            return sendMessageResponse;
-                        } else {
-                            return null;
-                        }
+                .bodyToMono(String.class)
+                .map(response -> {
+                	System.out.println("Response : "+response);
+                	ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        return objectMapper.readValue(response, NewSendMessageResponse.class);
+                    } catch (JsonProcessingException e) {
+                    	System.out.println("Failed to parse response: {}"+ e.getMessage());
+                        return null; // or handle the error as per your requirement
                     }
-                }).doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) {
-                        System.out.println("ERROR IS " + throwable.getLocalizedMessage());
-                    }
+                })
+                .onErrorResume(WebClientResponseException.class, ex -> {
+                    // Handle WebClientResponseException
+                    System.out.println("WebClient request failed with status code {}: {}"+ ex.getRawStatusCode()+" "+ex.getResponseBodyAsString());
+                    return Mono.empty(); // or return a default value or perform a recovery action
                 });
+        System.out.println("######################### responseMono : " + responseMono);
+        NewSendMessageResponse response = responseMono.block();
+        System.out.println("Response after block"+response);
+    	return responseMono;
     }
 
 	private NewOutboundMessage convertOutboundRequestToNewVendorRequest(OutboundMessage outboundMessage,
